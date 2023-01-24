@@ -42,9 +42,9 @@ jobs:
       - name: Install fmt library
         if: steps.cache-fmt.outputs.cache-hit != 'true'
         run: |
-          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${ GITHUB_WORKSPACE }/fmt-9.1.0.zip"
-          Expand-Archive -Path ${ GITHUB_WORKSPACE }/fmt-9.1.0.zip -DestinationPath ${ GITHUB_WORKSPACE }
-          cd ${ GITHUB_WORKSPACE }/fmt-9.1.0
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/fmt-9.1.0.zip"
+          Expand-Archive -Path ${{ github.workspace }}/fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}
+          cd ${{ github.workspace }}/fmt-9.1.0
           mkdir build && cd build
           cmake .. -G Ninja
           ninja install
