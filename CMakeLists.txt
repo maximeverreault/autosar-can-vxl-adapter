@@ -35,8 +35,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/vxlapi/v
 set(Boost_NO_WARN_NEW_VERSIONS 1)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
-#set(BOOST_ROOT        F:/libs)
-#set(BOOST_LIBRARYDIR F:/libs/lib)
 
 find_package(Boost 1.81.0 EXACT REQUIRED COMPONENTS program_options)
 

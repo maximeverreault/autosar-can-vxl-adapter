@@ -30,22 +30,6 @@ jobs:
           configuration: Release
           toolset: mingw
           static: 1
-#      - name: Install boost
-#        uses: MarkusJx/install-boost@v2.4.1
-#        id: install-boost
-#        with:
-#          # REQUIRED: Specify the required boost version
-#          # A list of supported versions can be found here:
-#          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-#          # NOTE: If a boost version matching all requirements cannot be found,
-#          # this build step will fail
-#          boost_version: 1.81.0
-#          # OPTIONAL: Specify a platform version
-#          platform_version: 2022
-#          # OPTIONAL: Specify a toolset
-#          toolset: mingw
-#          # OPTIONAL: Specify the build link type
-#          link: static
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
       - name: Cache fmt library
@@ -67,6 +51,7 @@ jobs:
           cmake .. -G Ninja
           ninja install
       - name: Save fmt library
+        if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
         id: cache-fmt-save
         uses: actions/cache/save@v3
         with:
@@ -77,10 +62,15 @@ jobs:
           New-Item -ItemType directory -Path build
           cmake -S . -B build -G Ninja -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
           build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Debug
+      - name: Cache sonar-scanner CFamily analysis
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.workspace }}/.cache
+          key: 'sonar-cache'
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" --define sonar.cfamily.cache.enabled=true --define sonar.cfamily.cache.path=${{ runner.workspace }}/.cache
           
