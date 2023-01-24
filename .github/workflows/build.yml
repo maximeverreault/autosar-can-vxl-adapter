@@ -49,7 +49,7 @@ jobs:
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
       - name: Cache fmt library
-        id: cache-fmt
+        id: cache-fmt-restore
         uses: actions/cache/restore@v3
         with:
           path: ${{ github.workspace }}/fmt-9.1.0
