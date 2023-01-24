@@ -15,43 +15,63 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Install boost
-        uses: MarkusJx/install-boost@v2.4.1
-        id: install-boost
+      - name: Cache Boost
+        id: cache-boost
+        uses: actions/cache@v3
         with:
-          # REQUIRED: Specify the required boost version
-          # A list of supported versions can be found here:
-          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
-          # NOTE: If a boost version matching all requirements cannot be found,
-          # this build step will fail
-          boost_version: 1.81.0
-          # OPTIONAL: Specify a platform version
-          platform_version: 2022
-          # OPTIONAL: Specify a toolset
+          path: '${{ runner.workspace }}/boost_*.tar.gz'
+          key: 'boost-1.81.0'
+      - name: Install Boost
+        id: boost
+        uses: egor-tensin/build-boost@v1.4
+        with:
+          version: 1.81.0
+          libraries: program_options
+          platform: x64
+          configuration: Release
           toolset: mingw
-          # OPTIONAL: Specify the build link type
-          link: static
+          static: 1
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
+      - name: Cache fmt library
+        id: cache-fmt-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ github.workspace }}/fmt-9.1.0
+          key: ${{ runner.os }}-fmt
       - name: Fetch fmt library
+        if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
         run: |
-          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip"
-          Expand-Archive -Path ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip -DestinationPath ${{ env.GITHUB_ACTION_PATH }}
-      - name: Build and install fmt library
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/fmt-9.1.0.zip"
+          Expand-Archive -Path ${{ github.workspace }}/fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}
+          cd ${{ github.workspace }}/fmt-9.1.0
+          mkdir build
+      - name: Install fmt library
         run: |
-          cd ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0
-          mkdir build && cd build
+          cd ${{ github.workspace }}/fmt-9.1.0/build
           cmake .. -G Ninja
           ninja install
+      - name: Save fmt library
+        if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
+        id: cache-fmt-save
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ github.workspace }}/fmt-9.1.0
+          key: ${{ steps.cache-fmt-restore.outputs.cache-primary-key }}
       - name: Run build-wrapper
         run: |
           New-Item -ItemType directory -Path build
-          cmake -S . -B build -G Ninja -DSTANDALONE=1
+          cmake -S . -B build -G Ninja -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
           build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Debug
+      - name: Cache sonar-scanner CFamily analysis
+        uses: actions/cache@v3
+        with:
+          path: ${{ runner.workspace }}/.cache
+          key: 'sonar-cache'
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" --define sonar.cfamily.cache.enabled=true --define sonar.cfamily.cache.path=${{ runner.workspace }}/.cache
           
