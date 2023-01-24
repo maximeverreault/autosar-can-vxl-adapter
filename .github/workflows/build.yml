@@ -16,11 +16,13 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Cache Boost
+        id: cache-boost
         uses: actions/cache@v3
         with:
           path: '${{ runner.workspace }}/boost'
           key: 'boost-1.81.0'
       - name: Install Boost
+        if: steps.cache-boost.outputs.cache-hit != 'true'
         id: boost
         uses: egor-tensin/build-boost@v1.4
         with:
