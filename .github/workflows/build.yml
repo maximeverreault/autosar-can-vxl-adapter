@@ -19,10 +19,9 @@ jobs:
         id: cache-boost
         uses: actions/cache@v3
         with:
-          path: '${{ runner.workspace }}/boost'
+          path: '${{ runner.workspace }}/boost_*.tar.gz'
           key: 'boost-1.81.0'
       - name: Install Boost
-        if: steps.cache-boost.outputs.cache-hit != 'true'
         id: boost
         uses: egor-tensin/build-boost@v1.4
         with:
