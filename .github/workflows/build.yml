@@ -1,0 +1,57 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.4.1
+        id: install-boost
+        with:
+          # REQUIRED: Specify the required boost version
+          # A list of supported versions can be found here:
+          # https://github.com/MarkusJx/prebuilt-boost/blob/main/versions-manifest.json
+          # NOTE: If a boost version matching all requirements cannot be found,
+          # this build step will fail
+          boost_version: 1.81.0
+          # OPTIONAL: Specify a platform version
+          platform_version: 2022
+          # OPTIONAL: Specify a toolset
+          toolset: mingw
+          # OPTIONAL: Specify the build link type
+          link: static
+      - name: Install sonar-scanner and build-wrapper
+        uses: SonarSource/sonarcloud-github-c-cpp@v1
+      - name: Fetch fmt library
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip"
+          Expand-Archive -Path ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip -DestinationPath ${{ env.GITHUB_ACTION_PATH }}
+      - name: Build and install fmt library
+        run: |
+          cd ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0
+          mkdir build && cd build
+          cmake .. -G Ninja
+          ninja install
+      - name: Run build-wrapper
+        run: |
+          New-Item -ItemType directory -Path build
+          cmake -S . -B build -G Ninja -DSTANDALONE=1
+          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Debug
+      - name: Run sonar-scanner
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
+        run: |
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}"
+          
