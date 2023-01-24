@@ -73,11 +73,9 @@ jobs:
           path: ${{ github.workspace }}/fmt-9.1.0
           key: ${{ steps.cache-fmt-restore.outputs.cache-primary-key }}
       - name: Run build-wrapper
-        env:
-          BOOST_ROOT: ${{ steps.boost.outputs.root }}
         run: |
           New-Item -ItemType directory -Path build
-          cmake -S . -B build -G Ninja -DSTANDALONE=1
+          cmake -S . -B build -G Ninja -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
           build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Debug
       - name: Run sonar-scanner
         env:
