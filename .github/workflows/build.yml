@@ -33,13 +33,18 @@ jobs:
           link: static
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
-      - name: Fetch fmt library
+      - name: Cache fmt library
+        id: cache-fmt
+        uses: actions/cache@v3.2.3
+        with:
+          path: fmt-9.1.0
+          key: ${{ runner.os }}-fmt
+      - name: Install fmt library
+        if: steps.cache-fmt.outputs.cache-hit != 'true'
         run: |
-          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip"
-          Expand-Archive -Path ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0.zip -DestinationPath ${{ env.GITHUB_ACTION_PATH }}
-      - name: Build and install fmt library
-        run: |
-          cd ${{ env.GITHUB_ACTION_PATH }}/fmt-9.1.0
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${ GITHUB_WORKSPACE }/fmt-9.1.0.zip"
+          Expand-Archive -Path ${ GITHUB_WORKSPACE }/fmt-9.1.0.zip -DestinationPath ${ GITHUB_WORKSPACE }
+          cd ${ GITHUB_WORKSPACE }/fmt-9.1.0
           mkdir build && cd build
           cmake .. -G Ninja
           ninja install
