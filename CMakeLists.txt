@@ -19,7 +19,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 11)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE DISABLE_MCAL_FILE_VERSION_CHECK)
+target_compile_definitions(${PROJECT_NAME} PUBLIC DISABLE_MCAL_FILE_VERSION_CHECK)
 
 target_compile_options(${PROJECT_NAME} PUBLIC -Wall)
 target_compile_options(${PROJECT_NAME} PUBLIC -Wextra)
