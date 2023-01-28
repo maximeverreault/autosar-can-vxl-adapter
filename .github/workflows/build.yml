@@ -75,6 +75,7 @@ jobs:
           .\setup.exe /installCert /s /i virtual
           cd x64
           .\vcanconf.exe -impApplCfg -filePathAndName:"${{ github.workspace }}/tools/vector_hardware_settings.vaset"
+          "${{ github.workspace }}/vxlapi" >> $env:GITHUB_PATH
       - name: Run build-wrapper
         run: |
           New-Item -ItemType directory -Path build
