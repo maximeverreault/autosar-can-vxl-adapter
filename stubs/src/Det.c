@@ -1,11 +1,11 @@
 /**
- * @file CanIf.c
+ * @file Det.c
  * @author Maxime Verreault
- * @date 2023-01-22
+ * @date 2023-01-27
  * @copyright COPYRIGHT(c) KONGSBERG AUTOMOTIVE All rights reserved.
- * @brief STUB FILE ONLY
- * @ingroup Stubs
- * @addtogroup CanIf
+ * @brief STUB FILE FOR DET
+ * @ingroup Can_XLdriver
+ * @addtogroup Det
  * @{
  */
 
@@ -19,8 +19,11 @@
 * 2) needed interfaces from external units
 * 3) internal and external interfaces from this unit
 ==================================================================================================*/
-#include "CanIf_Can.h"
+#include "Det.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================================================================================================
 *                          LOCAL TYPEDEFS (STRUCTURES, UNIONS, ENUMS)
@@ -60,39 +63,19 @@
 /*==================================================================================================
 *                                       GLOBAL FUNCTIONS
 ==================================================================================================*/
-void CanIf_ControllerBusOff(uint8 ControllerId)
+Std_ReturnType Det_ReportError ( uint16 ModuleId, uint8 InstanceId, uint8 ApiId, uint8 ErrorId )
 {
-    (void) ControllerId;
-}
-
-void CanIf_ControllerModeIndication(uint8 ControllerId, Can_ControllerStateType ControllerMode)
-{
-    (void) ControllerId;
-    (void) ControllerMode;
-}
-
-void CanIf_RxIndication(const Can_HwType* Mailbox, const PduInfoType* PduInfoPtr)
-{
-    (void) Mailbox;
-    (void) PduInfoPtr;
-}
-
-void CanIf_ControllerErrorStatePassive(void)
-{
-    /* Stub function */
-}
-
-void CanIf_ErrorNotification(void)
-{
-    /* Stub function */
-}
-
-void CanIf_TxConfirmation(PduIdType CanTxPduId)
-{
-    (void) CanTxPduId;
+    (void) ModuleId;
+    (void) InstanceId;
+    (void) ApiId;
+    (void) ErrorId;
+    return E_OK;
 }
 
 
+#ifdef __cplusplus
+}
+#endif
 
 
-/**@} */ /* END OF addtogroup <> */
+/**@} */

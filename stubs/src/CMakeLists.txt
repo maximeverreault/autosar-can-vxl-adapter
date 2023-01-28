@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PUBLIC CanIf.c)
+target_sources(${PROJECT_NAME}_main PUBLIC CanIf.c Det.c)

@@ -19,8 +19,8 @@ jobs:
         id: cache-boost
         uses: actions/cache@v3
         with:
-          path: '${{ runner.workspace }}/boost_*.tar.gz'
-          key: 'boost-1.81.0'
+          path: ${{ runner.workspace }}/boost_*.tar.gz
+          key: boost-1.81.0
       - name: Install Boost
         id: boost
         uses: egor-tensin/build-boost@v1.4
@@ -58,20 +58,47 @@ jobs:
         with:
           path: ${{ github.workspace }}/fmt-9.1.0
           key: ${{ steps.cache-fmt-restore.outputs.cache-primary-key }}
+      - name: Cache Vector Drivers
+        id: cache-vector-drivers
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/vector-drivers.zip
+          key: vector-drivers-cache
+      - name: Download Vector Drivers
+        if: steps.cache-vector-drivers.outputs.cache-hit != 'true'
+        run: |
+          Invoke-WebRequest -Uri "https://www.vector.com/int/en/download/download-action/?tx_vecdownload_download%5Baction%5D=download&tx_vecdownload_download%5Bcontroller%5D=Download&tx_vecdownload_download%5Bdownload%5D=46642&cHash=bb3bfd847dc59ca157c80384a1d82274" -OutFile "${{ github.workspace }}/vector-drivers.zip"
+      - name: Install Vector Drivers
+        run: |
+          Expand-Archive -Path ${{ github.workspace }}/vector-drivers.zip -DestinationPath ${{ github.workspace }}/vector-drivers
+          cd vector-drivers/Drivers
+          .\setup.exe /installCert /s /i virtual
+          cd x64
+          .\vcanconf.exe -impApplCfg -filePathAndName:"${{ github.workspace }}/tools/vector_hardware_settings.vaset"
       - name: Run build-wrapper
         run: |
           New-Item -ItemType directory -Path build
           cmake -S . -B build -G Ninja -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
-          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Debug
+          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Coverage --target ${{ github.event.repository.name }}_Tests
+      - name: Run tests
+        run: |
+          cd ${{ github.workspace }}/build
+          ctest --output-on-failure
+      - name: Process coverage data
+        run: |
+          cd ${{ github.workspace }}
+          mkdir coverage-dir
+          cd coverage-dir
+          @(Get-ChildItem -Path ..\ -Filter *.obj -Recurse -File) | %{&"gcov" --preserve-paths $_.FullName}
       - name: Cache sonar-scanner CFamily analysis
         uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/.cache
-          key: 'sonar-cache'
+          key: sonar-cache
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" --define sonar.cfamily.cache.enabled=true --define sonar.cfamily.cache.path=${{ runner.workspace }}/.cache
-          
+          sonar-scanner --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" --define sonar.cfamily.cache.enabled=true --define sonar.cfamily.cache.path=${{ runner.workspace }}/.cache --define sonar.cfamily.gcov.reportsPath="${{ github.workspace }}/coverage-dir"
+

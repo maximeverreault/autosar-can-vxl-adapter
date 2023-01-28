@@ -60,6 +60,7 @@ extern "C"{
 */
 #define CAN_GENERALTYPES_AR_RELEASE_MAJOR_VERSION      4
 #define CAN_GENERALTYPES_AR_RELEASE_MINOR_VERSION      4
+#define CAN_GENERALTYPES_AR_RELEASE_REVISION_VERSION      0
 
 /**@}*/
 /*==================================================================================================
