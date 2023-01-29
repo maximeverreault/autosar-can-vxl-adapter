@@ -69,11 +69,10 @@ jobs:
         run: |
           Invoke-WebRequest -Uri "https://www.vector.com/int/en/download/download-action/?tx_vecdownload_download%5Baction%5D=download&tx_vecdownload_download%5Bcontroller%5D=Download&tx_vecdownload_download%5Bdownload%5D=46642&cHash=bb3bfd847dc59ca157c80384a1d82274" -OutFile "${{ github.workspace }}/vector-drivers.zip"
       - name: Install Vector Drivers
-        shell: pwsh
         run: |
           Expand-Archive -Path ${{ github.workspace }}/vector-drivers.zip -DestinationPath ${{ github.workspace }}/vector-drivers
           cd vector-drivers/Drivers
-          .\setup.exe /installCert /s /i virtual
+          .\setup.exe /installCert /s /i virtual -RunAsAdmin
           cd x64
           .\vcanconf.exe -impApplCfg -filePathAndName:"${{ github.workspace }}/tools/vector_hardware_settings.vaset"
           "${{ github.workspace }}/vxlapi" >> $env:GITHUB_PATH
