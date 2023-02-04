@@ -45,18 +45,18 @@ jobs:
         id: cache-fmt-restore
         uses: actions/cache/restore@v3
         with:
-          path: ${{ github.workspace }}/fmt-9.1.0
+          path: ${{ github.workspace }}/../fmt-9.1.0
           key: ${{ runner.os }}-fmt
       - name: Fetch fmt library
         if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
         run: |
-          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/fmt-9.1.0.zip"
-          Expand-Archive -Path ${{ github.workspace }}/fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}
-          cd ${{ github.workspace }}/fmt-9.1.0
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/../fmt-9.1.0.zip"
+          Expand-Archive -Path ${{ github.workspace }}/fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}/..
+          cd ${{ github.workspace }}/../fmt-9.1.0
           mkdir build
       - name: Install fmt library
         run: |
-          cd ${{ github.workspace }}/fmt-9.1.0/build
+          cd ${{ github.workspace }}/../fmt-9.1.0/build
           cmake .. -G Ninja
           ninja install
       - name: Save fmt library
@@ -64,7 +64,7 @@ jobs:
         id: cache-fmt-save
         uses: actions/cache/save@v3
         with:
-          path: ${{ github.workspace }}/fmt-9.1.0
+          path: ${{ github.workspace }}/../fmt-9.1.0
           key: ${{ steps.cache-fmt-restore.outputs.cache-primary-key }}
       - name: Cache Vector Drivers
         id: cache-vector-drivers
