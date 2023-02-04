@@ -81,8 +81,8 @@ jobs:
       - name: Run build-wrapper
         run: |
           New-Item -ItemType directory -Path build
-          cmake -S . -B build -G Ninja -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
-          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --config Coverage --target ${{ github.event.repository.name }}_Tests
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Coverage -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
+          build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --target ${{ github.event.repository.name }}_Tests
       - name: Run tests
         run: |
           cd ${{ github.workspace }}/build
