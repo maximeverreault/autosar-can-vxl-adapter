@@ -51,7 +51,7 @@ jobs:
         if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
         run: |
           Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/../fmt-9.1.0.zip"
-          Expand-Archive -Path ${{ github.workspace }}/fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}/..
+          Expand-Archive -Path ${{ github.workspace }}/../fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}/..
           cd ${{ github.workspace }}/../fmt-9.1.0
           mkdir build
       - name: Install fmt library
