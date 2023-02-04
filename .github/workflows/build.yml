@@ -29,6 +29,10 @@ jobs:
         with:
           path: ${{ runner.workspace }}/boost_*.tar.gz
           key: boost-1.81.0
+          restore-keys: |
+            boost-1.81.0
+            boost-1.8
+            boost-1
       - name: Install Boost
         id: boost
         uses: egor-tensin/build-boost@v1.4
@@ -41,22 +45,26 @@ jobs:
           static: 1
       - name: Install sonar-scanner and build-wrapper
         uses: SonarSource/sonarcloud-github-c-cpp@v1
-      - name: Cache fmt library
+      - name: Restore fmt library from cache
         id: cache-fmt-restore
         uses: actions/cache/restore@v3
         with:
-          path: ${{ github.workspace }}/../fmt-9.1.0
-          key: ${{ runner.os }}-fmt
+          path: ${{ runner.temp }}/fmt-9.1.0
+          key: ${{ runner.os }}-fmt-9.1.0
+          restore-keys: |
+            ${{ runner.os }}-fmt-9.1.0
+            ${{ runner.os }}-fmt-9
       - name: Fetch fmt library
         if: steps.cache-fmt-restore.outputs.cache-hit != 'true'
+        working-directory: ${{ github.temp }}
         run: |
-          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "${{ github.workspace }}/../fmt-9.1.0.zip"
-          Expand-Archive -Path ${{ github.workspace }}/../fmt-9.1.0.zip -DestinationPath ${{ github.workspace }}/..
-          cd ${{ github.workspace }}/../fmt-9.1.0
+          Invoke-WebRequest -Uri "https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip" -OutFile "fmt-9.1.0.zip"
+          Expand-Archive -Path fmt-9.1.0.zip -DestinationPath ./
+          cd fmt-9.1.0
           mkdir build
       - name: Install fmt library
+        working-directory: ${{ runner.temp }}/fmt-9.1.0/build
         run: |
-          cd ${{ github.workspace }}/../fmt-9.1.0/build
           cmake .. -G Ninja
           ninja install
       - name: Save fmt library
@@ -64,48 +72,50 @@ jobs:
         id: cache-fmt-save
         uses: actions/cache/save@v3
         with:
-          path: ${{ github.workspace }}/../fmt-9.1.0
+          path: ${{ runner.temp }}/fmt-9.1.0
           key: ${{ steps.cache-fmt-restore.outputs.cache-primary-key }}
       - name: Cache Vector Drivers
         id: cache-vector-drivers
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/vector-drivers.zip
+          path: ${{ runner.temp }}/vector-drivers.zip
           key: vector-drivers-cache
+          restore-keys: |
+            vector-drivers-cache
+            vector-drivers
       - name: Download Vector Drivers
         if: steps.cache-vector-drivers.outputs.cache-hit != 'true'
-        run: |
-          Invoke-WebRequest -Uri "https://www.vector.com/int/en/download/download-action/?tx_vecdownload_download%5Baction%5D=download&tx_vecdownload_download%5Bcontroller%5D=Download&tx_vecdownload_download%5Bdownload%5D=46642&cHash=bb3bfd847dc59ca157c80384a1d82274" -OutFile "${{ github.workspace }}/vector-drivers.zip"
+        working-directory: ${{ runner.temp }}
+        run:
+          Invoke-WebRequest -Uri "https://www.vector.com/int/en/download/download-action/?tx_vecdownload_download%5Baction%5D=download&tx_vecdownload_download%5Bcontroller%5D=Download&tx_vecdownload_download%5Bdownload%5D=46642&cHash=bb3bfd847dc59ca157c80384a1d82274" -OutFile "vector-drivers.zip"
       - name: Install Vector Drivers
+        working-directory: ${{ runner.temp }}
         run: |
-          Expand-Archive -Path ${{ github.workspace }}/vector-drivers.zip -DestinationPath ${{ github.workspace }}/vector-drivers
+          Expand-Archive -Path vector-drivers.zip -DestinationPath vector-drivers
           cd vector-drivers/Drivers
           .\setup.exe /installCert /s /i virtual -RunAsAdmin
           cd x64
           .\vcanconf.exe -impApplCfg -filePathAndName:"${{ github.workspace }}/tools/vector_hardware_settings.vaset"
-          "${{ github.workspace }}/vxlapi" >> $env:GITHUB_PATH
-          Get-ChildItem C:\Windows\System32\vxlapi*.dll
-          $env:GITHUB_PATH
       - name: Run build-wrapper
         run: |
-          New-Item -ItemType directory -Path build
+          mkdir build
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Coverage -DSTANDALONE=1 -D "BOOST_ROOT=${{ steps.boost.outputs.root }}" -D "BOOST_LIBRARYDIR=${{ steps.boost.outputs.librarydir }}"
           build-wrapper-win-x86-64 --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmake --build build/ --target ${{ github.event.repository.name }}_Tests
       - name: Run tests
-        run: |
-          cd ${{ github.workspace }}/build
+        working-directory: ${{ github.workspace }}/build
+        run:
           ctest --output-on-failure
       - name: Process coverage data
         run: |
-          cd ${{ github.workspace }}
-          mkdir coverage-dir
-          cd coverage-dir
+          mkdir coverage-dir && cd coverage-dir
           @(Get-ChildItem -Path ..\ -Filter *.obj -Recurse -File) | %{&"gcov" --preserve-paths $_.FullName}
       - name: Cache sonar-scanner CFamily analysis
         uses: actions/cache@v3
         with:
           path: ${{ runner.workspace }}/.cache
           key: sonar-cache
+          restore-keys: |
+            sonar-cache
       - name: Run sonar-scanner
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
