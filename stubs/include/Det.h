@@ -1,21 +1,17 @@
 /**
- * @file CanIf_Can.h
+ * @file Det.h
  * @author Maxime Verreault
- * @date 2023-01-22
+ * @date 2023-01-27
  * @copyright COPYRIGHT(c) KONGSBERG AUTOMOTIVE All rights reserved.
  * @brief STUB FILE ONLY
- * @ingroup Stubs
- * @addtogroup CanIf_Can
+ * @ingroup Can_XLdriver
+ * @addtogroup Det_Stub
  * @{
  */
 
 
-#ifndef CANIF_CAN_H
-#define CANIF_CAN_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef DET_H
+#define DET_H
 
 /*==================================================================================================
 *                                         INCLUDE FILES
@@ -23,8 +19,13 @@ extern "C" {
 * 2) needed interfaces from external units
 * 3) internal and external interfaces from this unit
 ==================================================================================================*/
-#include <Can_GeneralTypes.h>
-#include "ComStack_Types.h"
+#include "Std_Types.h"
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================================================================================================
 *                               SOURCE FILE VERSION INFORMATION
@@ -35,28 +36,27 @@ extern "C" {
  * @satisfies [SRS_BSW_00321] The version numbers of AUTOSAR Basic
  *            Software Modules shall be enumerated according to specific rules
  * */
-#define CANIF_CAN_MODULE_ID 69 /**<@brief AUTOSAR module ID defined in AUTOSAR_TR_BSWModuleList.pdf
+#define DET_MODULE_ID 15u /**<@brief AUTOSAR module ID defined in AUTOSAR_TR_BSWModuleList.pdf
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_VENDOR_ID 0x0099 /**<@brief KA's unique vendor ID assigned by AUTOSAR
+#define DET_VENDOR_ID 0x0099 /**<@brief KA's unique vendor ID assigned by AUTOSAR
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_AR_RELEASE_MAJOR_VERSION 4u /**<@brief AUTOSAR release major version number
+#define DET_AR_RELEASE_MAJOR_VERSION 4u /**<@brief AUTOSAR release major version number
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_AR_RELEASE_MINOR_VERSION 6u /**<@brief AUTOSAR release minor version number
+#define DET_AR_RELEASE_MINOR_VERSION 6u /**<@brief AUTOSAR release minor version number
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_AR_RELEASE_REVISION_VERSION 0u /**<@brief AUTOSAR release reversion version number
+#define DET_AR_RELEASE_REVISION_VERSION 0u /**<@brief AUTOSAR release reversion version number
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_SW_MAJOR_VERSION 1 /**<@brief Software major version number
+#define DET_SW_MAJOR_VERSION 1 /**<@brief Software major version number
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_SW_MINOR_VERSION 0 /**<@brief Software minor version number
+#define DET_SW_MINOR_VERSION 0 /**<@brief Software minor version number
 * @implements [SRS_BSW_00318] */
-#define CANIF_CAN_SW_PATCH_VERSION 0 /**<@brief Software patch version number
+#define DET_SW_PATCH_VERSION 0 /**<@brief Software patch version number
 * @implements [SRS_BSW_00318] */
 
 
 /*==================================================================================================
 *                                      FILE VERSION CHECKS
 ==================================================================================================*/
-
 
 
 
@@ -89,19 +89,14 @@ extern "C" {
 /*==================================================================================================
 *                                     FUNCTION PROTOTYPES
 ==================================================================================================*/
-void CanIf_ControllerBusOff(uint8 ControllerId);
-void CanIf_ControllerModeIndication(uint8 ControllerId, Can_ControllerStateType ControllerMode);
-void CanIf_RxIndication(const Can_HwType* Mailbox, const PduInfoType* PduInfoPtr);
-void CanIf_TxConfirmation(PduIdType CanTxPduId);
-void CanIf_ControllerErrorStatePassive(void);
-void CanIf_ErrorNotification(void);
+Std_ReturnType Det_ReportError ( uint16 ModuleId, uint8 InstanceId, uint8 ApiId, uint8 ErrorId );
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* CANIF_CAN_H */
+#endif /* DET_H */
 
 
-/**@} */ /* END OF addtogroup <> */
+/**@} */

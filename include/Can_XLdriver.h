@@ -3,19 +3,16 @@
  * @author Maxime Verreault
  * @date 2023-01-22
  * @copyright COPYRIGHT(c) KONGSBERG AUTOMOTIVE All rights reserved.
- * @brief TODO: add description
- * @ingroup TODO: add or remove ingroup
+ * @brief Can driver which communicates with the Vector XL API on Windows in order to test on CANoe without a MCU
+ * @ingroup Can_XLdriver
  * @addtogroup Can_XLdriver
- * @{  TODO: close the doxygen group at the end of the file with @}
+ * @{
  */
 
 
 #ifndef CAN_XLDRIVER_H
 #define CAN_XLDRIVER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================================================================================================
 *                                         INCLUDE FILES
@@ -23,7 +20,15 @@ extern "C" {
 * 2) needed interfaces from external units
 * 3) internal and external interfaces from this unit
 ==================================================================================================*/
+#include <Std_Types.h>
 #include <Can_GeneralTypes.h>
+
+#include "Can_XLdriver_Types.h"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================================================================================================
 *                               SOURCE FILE VERSION INFORMATION
@@ -56,17 +61,50 @@ extern "C" {
 *                                      FILE VERSION CHECKS
 ==================================================================================================*/
 
-#ifndef DISABLE_MCAL_INTERMODULE_ASR_CHECK
-// TODO: file version check for each included file from other module. TIP: use live template (CTRL + J)
+#ifndef DISABLE_INTERMODULE_ASR_CHECK
 
-#endif //DISABLE_MCAL_INTERMODULE_ASR_CHECK
+    #ifndef DISABLE_MCAL_FILE_VERSION_CHECK
+
+        #if ((CAN_XLDRIVER_AR_RELEASE_MAJOR_VERSION != STD_AR_RELEASE_MAJOR_VERSION) || \
+        (CAN_XLDRIVER_AR_RELEASE_MINOR_VERSION != STD_AR_RELEASE_MINOR_VERSION) || \
+        (CAN_XLDRIVER_AR_RELEASE_REVISION_VERSION != STD_AR_RELEASE_REVISION_VERSION))
+            #error "AUTOSAR Version Numbers of Can_XLdriver.h and Standard_Types.h are different"
+        #endif
+
+        #if ((CAN_XLDRIVER_AR_RELEASE_MAJOR_VERSION != CAN_GENERALTYPES_AR_RELEASE_MAJOR_VERSION) || \
+        (CAN_XLDRIVER_AR_RELEASE_MINOR_VERSION != CAN_GENERALTYPES_AR_RELEASE_MINOR_VERSION) || \
+        (CAN_XLDRIVER_AR_RELEASE_REVISION_VERSION != CAN_GENERALTYPES_AR_RELEASE_REVISION_VERSION))
+            #error "AUTOSAR Version Numbers of Can_XLdriver.h and Can_GeneralTypes.h are different"
+        #endif
+
+    #endif /* DISABLE_MCAL_FILE_VERSION_CHECK */
+
+#endif /* DISABLE_INTERMODULE_ASR_CHECK */
 
 
-#ifndef DISABLE_MCAL_INTRAMODULE_ASR_CHECK
+#ifndef DISABLE_INTRAMODULE_ASR_CHECK
 
-// TODO: file version check for each included file from the same module. TIP: use live template (CTRL + J)
+    #if (CAN_XLDRIVER_VENDOR_ID != CAN_XLDRIVER_TYPES_VENDOR_ID)
+        #error "Vendor ID of Can_XLdriver.h and  are different"
+    #endif
 
-#endif //DISABLE_MCAL_INTRAMODULE_ASR_CHECK
+    #if (CAN_XLDRIVER_MODULE_ID != CAN_XLDRIVER_TYPES_MODULE_ID)
+        #error "Module ID of Can_XLdriver.h and  are different"
+    #endif
+
+    #if ((CAN_XLDRIVER_AR_RELEASE_MAJOR_VERSION != CAN_XLDRIVER_TYPES_AR_RELEASE_MAJOR_VERSION) || \
+    (CAN_XLDRIVER_AR_RELEASE_MINOR_VERSION != CAN_XLDRIVER_TYPES_AR_RELEASE_MINOR_VERSION) || \
+    (CAN_XLDRIVER_AR_RELEASE_REVISION_VERSION != CAN_XLDRIVER_TYPES_AR_RELEASE_REVISION_VERSION))
+        #error "AUTOSAR Version Numbers of Can_XLdriver.h and Can_XLdriver_Types.h are different"
+    #endif
+
+    #if ((CAN_XLDRIVER_SW_MAJOR_VERSION != CAN_XLDRIVER_TYPES_SW_MAJOR_VERSION) || \
+    (CAN_XLDRIVER_SW_MINOR_VERSION != CAN_XLDRIVER_TYPES_SW_MINOR_VERSION) || \
+    (CAN_XLDRIVER_SW_PATCH_VERSION != CAN_XLDRIVER_TYPES_SW_PATCH_VERSION))
+        #error "Software Version Numbers of Can_XLdriver.h and Can_XLdriver_Types.h are different"
+    #endif
+
+#endif /* DISABLE_INTRAMODULE_ASR_CHECK */
 
 
 
@@ -102,13 +140,22 @@ Std_ReturnType Can_XLdriver_GetControllerErrorState(uint8 ControllerId, Can_Erro
 Std_ReturnType Can_XLdriver_GetControllerRxErrorCounter(uint8 ControllerId, uint8* RxErrorCounterPtr);
 Std_ReturnType Can_XLdriver_GetControllerTxErrorCounter(uint8 ControllerId, uint8* TxErrorCounterPtr);
 Std_ReturnType Can_XLdriver_SetControllerMode(uint8 Controller, Can_ControllerStateType Transition);
+Std_ReturnType Can_XLdriver_GetControllerMode(uint8 Controller, Can_ControllerStateType* ControllerModePtr);
+Std_ReturnType Can_XLdriver_SetBaudrate(uint8 Controller, uint16 BaudRateConfigID);
+void Can_XLdriver_EnableControllerInterrupts(uint8 Controller);
+void Can_XLdriver_DisableControllerInterrupts(uint8 Controller);
+Std_ReturnType Can_XLdriver_CheckWakeup(uint8 Controller);
+void Can_XLdriver_Init(const Can_ConfigType* Config);
+void Can_XLdriver_GetVersionInfo(Std_VersionInfoType* versionInfo);
+void Can_XLdriver_DeInit(void);
+Std_ReturnType Can_XLdriver_Write(Can_HwHandleType Hth, const Can_PduType* PduInfo);
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //CAN_XLDRIVER_H
+#endif /* CAN_XLDRIVER_H */
 
-// TODO: indicate group
-/**@} */ // END OF addtogroup <>
+
+/**@} */

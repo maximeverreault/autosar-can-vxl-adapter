@@ -1,1 +1,1 @@
-target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/xldriver.cpp)
+target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Can_XLdriver.cpp Can_XLdriver_Internal.cpp)
