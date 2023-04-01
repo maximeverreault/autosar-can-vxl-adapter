@@ -1,15 +1,13 @@
 /**
- * @file CanIf.c
+ * @file Can_XLdriver_Internal.c
  * @author Maxime Verreault
- * @date 2023-01-22
+ * @date 2023-01-24
  * @copyright COPYRIGHT(c) KONGSBERG AUTOMOTIVE All rights reserved.
- * @brief STUB FILE ONLY
- * @ingroup Stubs
- * @addtogroup CanIf
+ * @brief Internal data and methods for Can_XLdriver
+ * @ingroup Can_XLdriver
+ * @addtogroup Can_XLdriver_Internal
  * @{
  */
-
-
 
 
 
@@ -19,7 +17,7 @@
 * 2) needed interfaces from external units
 * 3) internal and external interfaces from this unit
 ==================================================================================================*/
-#include "CanIf_Can.h"
+#include "Can_XLdriver_Internal.hpp"
 
 
 /*==================================================================================================
@@ -60,39 +58,9 @@
 /*==================================================================================================
 *                                       GLOBAL FUNCTIONS
 ==================================================================================================*/
-void CanIf_ControllerBusOff(uint8 ControllerId)
-{
-    (void) ControllerId;
-}
-
-void CanIf_ControllerModeIndication(uint8 ControllerId, Can_ControllerStateType ControllerMode)
-{
-    (void) ControllerId;
-    (void) ControllerMode;
-}
-
-void CanIf_RxIndication(const Can_HwType* Mailbox, const PduInfoType* PduInfoPtr)
-{
-    (void) Mailbox;
-    (void) PduInfoPtr;
-}
-
-void CanIf_ControllerErrorStatePassive(void)
-{
-    /* Stub function */
-}
-
-void CanIf_ErrorNotification(void)
-{
-    /* Stub function */
-}
-
-void CanIf_TxConfirmation(PduIdType CanTxPduId)
-{
-    (void) CanTxPduId;
-}
 
 
 
 
-/**@} */ /* END OF addtogroup <> */
+
+/**@} */ // END OF addtogroup <>
