@@ -51,6 +51,7 @@ jobs:
         id: fmt
         with:
           toolset: Ninja
+          directory: ${{ runner.temp }}/fmt
       - name: Cache Vector Drivers
         id: cache-vector-drivers
         uses: actions/cache@v3
