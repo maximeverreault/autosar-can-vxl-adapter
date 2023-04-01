@@ -18,7 +18,7 @@ jobs:
       - name: Clean up PATH
         uses: egor-tensin/cleanup-path@v3
         with:
-          dirs: "C:/ProgramData/chocolatey/bin;C:/Program Files/CMake/bin"
+          dirs: "C:/ProgramData/chocolatey/bin;C:/Program Files/CMake/bin;C:/Program Files/GitHub CLI;C:/Program Files/nodejs;C:/Program Files (x86)/GitHub CLI;C:/Program Files/Git/bin;C:/Program Files (x86)/pipx_bin;C:/npm/prefix;C:/hostedtoolcache/windows/Python/3.9.13/x64/Scripts;C:/hostedtoolcache/windows/Python/3.9.13/x64;C:/Program Files/nodejs;C:/Program Files/Git/cmd;C:/Program Files/Git/mingw64/bin;C:/Program Files/Git/usr/bin;"
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
         with:
